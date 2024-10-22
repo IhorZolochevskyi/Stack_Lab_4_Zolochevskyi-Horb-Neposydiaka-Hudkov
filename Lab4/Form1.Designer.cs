@@ -96,9 +96,9 @@
             // timerLabel
             // 
             timerLabel.AutoSize = true;
-            timerLabel.Location = new Point(12, 191);
+            timerLabel.Location = new Point(12, 128);
             timerLabel.Name = "timerLabel";
-            timerLabel.Size = new Size(0, 15);
+            timerLabel.Size = new Size(25, 15);
             timerLabel.TabIndex = 7;
             timerLabel.Text = "123";
             // 

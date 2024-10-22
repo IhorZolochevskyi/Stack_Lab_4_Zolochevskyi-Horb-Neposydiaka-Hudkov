@@ -6,30 +6,12 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using ClassLib;
+using System.Diagnostics;
 
 namespace Lab4
 {
     public partial class Form1 : Form
     {
-        //private string selectedFilePath;
-        //private string encryptionKey;
-        //public Form1()
-        //{
-        //    InitializeComponent();
-        //    progressBar1.Hide();
-        //    cancelButton.Hide();
-        //    pauseButton.Hide();
-        //}
-        //private void fileSelectButton_Click(object sender, EventArgs e)
-        //{
-        //    using (OpenFileDialog openFileDialog = new OpenFileDialog())
-        //    {
-        //        if (openFileDialog.ShowDialog() == DialogResult.OK)
-        //        {
-        //            selectedFilePath = openFileDialog.FileName;
-        //        }
-        //    }
-        //}
         private BackgroundWorker backgroundWorker;
         private string selectedFilePath;
         private string encryptionKey;
@@ -37,7 +19,7 @@ namespace Lab4
         private ManualResetEvent pauseEvent = new ManualResetEvent(true);
         private System.Windows.Forms.Timer timer;
         private int secondsElapsed;
-
+        Stopwatch stopwatch = new Stopwatch();
         public Form1()
         {
             InitializeComponent();
@@ -80,23 +62,27 @@ namespace Lab4
                 MessageBox.Show("Please select a file and enter a key.");
                 return;
             }
-            timer = new System.Windows.Forms.Timer();
-            timer.Interval = 1; // 1 секунда
-            timer.Tick += Timer_Tick;
-            timer.Start(); // Запуск таймера
 
-            secondsElapsed = 0;
+            //timer = new System.Windows.Forms.Timer();
+            //timer.Interval = 1; // 1 секунда
+            //timer.Tick += Timer_Tick;
+            //timer.Start(); // Запуск таймера
+
+            //secondsElapsed = 0;
 
             backgroundWorker.RunWorkerAsync();
-            timer.Stop();
+            //timer.Stop();
+            
         }
         private void Timer_Tick(object sender, EventArgs e) // Обработчик события Tick
         {
             secondsElapsed++;
-            timerLabel.Text = $"Прошло секунд: {secondsElapsed}"; // Обновление Label
+            timerLabel.Text = $"Seconds have passed: {secondsElapsed}"; // Обновление Label
         }
         private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            
+            stopwatch.Start();
             var encryptor = new Encryptor(Encoding.UTF8.GetBytes(encryptionKey), new byte[16]);
             var fileService = new FileService(selectedFilePath, backgroundWorker, pauseEvent);
 
@@ -108,6 +94,8 @@ namespace Lab4
             {
                 e.Result = ex.Message;
             }
+            stopwatch.Stop();
+            timerLabel.Text = $"Program runtime: {stopwatch.ElapsedMilliseconds} ms";
         }
 
         private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -127,7 +115,13 @@ namespace Lab4
             }
             else
             {
-                MessageBox.Show("File encrypted successfully!");
+                var fileService = new FileService(selectedFilePath, backgroundWorker, pauseEvent);
+                int fileSize = (int)fileService.fileSize / 1048576;
+                MessageBox.Show($"File name and PATH:{selectedFilePath}\n" + 
+                    $"File size:{fileSize}mb\n" + 
+                    $"Program runtime: {stopwatch.ElapsedMilliseconds} ms",
+                    "File en/decrypted successfully!"
+                    );
             }
         }
 

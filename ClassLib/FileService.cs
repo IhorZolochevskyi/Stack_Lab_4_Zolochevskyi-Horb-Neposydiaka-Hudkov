@@ -20,7 +20,7 @@ namespace ClassLib
             this.fileSize = new FileInfo(inputFilePath).Length;
         }
 
-        public void EncryptFile(IEncryptor encryptor,long sizeOfFile)
+        public long EncryptFile(IEncryptor encryptor,long sizeOfFile)
         {
             using (FileStream inputFile = new FileStream(inputFilePath, FileMode.Open))
             using (FileStream outputFile = new FileStream(inputFilePath + ".enc", FileMode.Create))
@@ -46,6 +46,7 @@ namespace ClassLib
                     backgroundWorker.ReportProgress(progress);
                 }
             }
+            return fileSize;
         }
         public void DecryptFile(IEncryptor encryptor, long sizeOfFile)
         {
