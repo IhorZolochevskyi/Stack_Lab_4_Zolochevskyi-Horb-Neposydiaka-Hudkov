@@ -50,6 +50,7 @@ namespace ClassLib
             }
         }
 
+
         public void DecryptFile(Encryptor encryptor, long fileSize)
         {
             using (FileStream fsInput = new FileStream(filePath, FileMode.Open, FileAccess.Read))

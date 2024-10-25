@@ -51,6 +51,7 @@ namespace ClassLib
             }
         }
 
+
         private byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {
             try
