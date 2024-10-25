@@ -17,6 +17,8 @@ namespace ClassLib
 
         public Encryptor(byte[] key, byte[] iv)
         {
+            if (key.Length != 16 && key.Length != 24 && key.Length != 32)
+                throw new ArgumentException("Key size must be 16, 24, or 32 bytes.");
             this.key = key;
             this.iv = iv;
         }
@@ -27,6 +29,7 @@ namespace ClassLib
             {
                 aes.Key = key;
                 aes.IV = iv;
+
                 using (ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
                 {
                     return PerformCryptography(data, encryptor);
@@ -40,6 +43,7 @@ namespace ClassLib
             {
                 aes.Key = key;
                 aes.IV = iv;
+
                 using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
                 {
                     return PerformCryptography(data, decryptor);
@@ -49,14 +53,21 @@ namespace ClassLib
 
         private byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {
-            using (MemoryStream ms = new MemoryStream())
+            try
             {
-                using (CryptoStream cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    cryptoStream.Write(data, 0, data.Length);
-                    cryptoStream.FlushFinalBlock();
-                    return ms.ToArray();
+                    using (CryptoStream cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+                    {
+                        cryptoStream.Write(data, 0, data.Length);
+                        cryptoStream.FlushFinalBlock();
+                        return ms.ToArray();
+                    }
                 }
+            }
+            catch (CryptographicException ex)
+            {
+                throw new InvalidOperationException("An error occurred during cryptographic operation", ex);
             }
         }
     }

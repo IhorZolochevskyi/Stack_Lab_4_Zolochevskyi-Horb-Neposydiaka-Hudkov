@@ -11,7 +11,7 @@ namespace ClassLib
         private BackgroundWorker backgroundWorker;
         private ManualResetEvent pauseEvent;
 
-        public long fileSize { get; private set; }
+        public long fileSize { get; private set; } 
 
         public FileService(string filePath, BackgroundWorker backgroundWorker, ManualResetEvent pauseEvent)
         {
@@ -26,7 +26,8 @@ namespace ClassLib
             using (FileStream fsInput = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             using (FileStream fsOutput = new FileStream(filePath + ".enc", FileMode.Create, FileAccess.Write))
             {
-                byte[] buffer = new byte[fileSize];
+                //409600000
+                byte[] buffer = new byte[4096];
                 int bytesRead;
                 long totalBytesRead = 0;
 

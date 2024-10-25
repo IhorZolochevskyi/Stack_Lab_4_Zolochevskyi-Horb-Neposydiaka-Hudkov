@@ -63,15 +63,7 @@ namespace Lab4
                 return;
             }
 
-            //timer = new System.Windows.Forms.Timer();
-            //timer.Interval = 1; // 1 секунда
-            //timer.Tick += Timer_Tick;
-            //timer.Start(); // Запуск таймера
-
-            //secondsElapsed = 0;
-
             backgroundWorker.RunWorkerAsync();
-            //timer.Stop();
             
         }
         private void Timer_Tick(object sender, EventArgs e) // Обработчик события Tick
@@ -175,7 +167,7 @@ namespace Lab4
                 MessageBox.Show("Please select a file and enter a key.");
                 return;
             }
-            //qweqweqweqweqw==
+
             backgroundWorker.DoWork -= BackgroundWorker_DoWork;
             backgroundWorker.DoWork += BackgroundWorker_DoWork_Decrypt;
 
@@ -183,6 +175,7 @@ namespace Lab4
         }
         private void BackgroundWorker_DoWork_Decrypt(object sender, DoWorkEventArgs e)
         {
+            stopwatch.Start();
             var encryptor = new Encryptor(Encoding.UTF8.GetBytes(encryptionKey), new byte[16]);
             var fileService = new FileService(selectedFilePath, backgroundWorker, pauseEvent);
 
@@ -194,6 +187,8 @@ namespace Lab4
             {
                 e.Result = ex.Message;
             }
+            stopwatch.Stop();
+            timerLabel.Text = $"Program runtime: {stopwatch.ElapsedMilliseconds} ms";
         }
     }
 }
