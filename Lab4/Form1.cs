@@ -130,6 +130,20 @@ namespace Lab4
             if (backgroundWorker.IsBusy)
             {
                 backgroundWorker.CancelAsync();
+                backgroundWorker.RunWorkerCompleted += (s, args) =>
+                {
+                    if (File.Exists(selectedFilePath + ".enc"))
+                    {
+                        try
+                        {
+                            File.Delete(selectedFilePath + ".enc");
+                        }
+                        catch (IOException ex)
+                        {
+                            MessageBox.Show($"Error deleting file: {ex.Message}");
+                        }
+                    }
+                };
             }
         }
 

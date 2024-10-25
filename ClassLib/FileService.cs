@@ -7,71 +7,72 @@ namespace ClassLib
 {
     public class FileService
     {
-        private readonly string inputFilePath;
-        private readonly BackgroundWorker backgroundWorker;
-        private readonly ManualResetEvent pauseEvent;
-        public long fileSize;
+        private string filePath;
+        private BackgroundWorker backgroundWorker;
+        private ManualResetEvent pauseEvent;
 
-        public FileService(string inputFilePath, BackgroundWorker backgroundWorker, ManualResetEvent pauseEvent)
+        public long fileSize { get; private set; }
+
+        public FileService(string filePath, BackgroundWorker backgroundWorker, ManualResetEvent pauseEvent)
         {
-            this.inputFilePath = inputFilePath;
+            this.filePath = filePath;
             this.backgroundWorker = backgroundWorker;
             this.pauseEvent = pauseEvent;
-            this.fileSize = new FileInfo(inputFilePath).Length;
+            this.fileSize = new FileInfo(filePath).Length;
         }
 
-        public long EncryptFile(IEncryptor encryptor,long sizeOfFile)
+        public void EncryptFile(Encryptor encryptor, long fileSize)
         {
-            using (FileStream inputFile = new FileStream(inputFilePath, FileMode.Open))
-            using (FileStream outputFile = new FileStream(inputFilePath + ".enc", FileMode.Create))
+            using (FileStream fsInput = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream fsOutput = new FileStream(filePath + ".enc", FileMode.Create, FileAccess.Write))
             {
-                byte[] buffer = new byte[sizeOfFile];
+                byte[] buffer = new byte[fileSize];
                 int bytesRead;
                 long totalBytesRead = 0;
 
-                while ((bytesRead = inputFile.Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytesRead = fsInput.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    pauseEvent.WaitOne(); // Ожидание для паузы
+                    pauseEvent.WaitOne();
+
+                    byte[] encrypted = encryptor.Encrypt(buffer.Take(bytesRead).ToArray());
+                    fsOutput.Write(encrypted, 0, encrypted.Length);
+
+                    totalBytesRead += bytesRead;
+                    int progressPercentage = (int)((double)totalBytesRead / fileSize * 100);
+                    backgroundWorker.ReportProgress(progressPercentage);
 
                     if (backgroundWorker.CancellationPending)
                     {
                         throw new OperationCanceledException();
                     }
-
-                    byte[] encryptedData = encryptor.Encrypt(buffer.Take(bytesRead).ToArray());
-                    outputFile.Write(encryptedData, 0, encryptedData.Length);
-
-                    totalBytesRead += bytesRead;
-                    int progress = (int)((double)totalBytesRead / fileSize * 100);
-                    backgroundWorker.ReportProgress(progress);
                 }
             }
-            return fileSize;
         }
-        public void DecryptFile(IEncryptor encryptor, long sizeOfFile)
+
+        public void DecryptFile(Encryptor encryptor, long fileSize)
         {
-            using (FileStream inputFile = new FileStream(inputFilePath, FileMode.Open))
-            using (FileStream outputFile = new FileStream(inputFilePath.Replace(".enc", ""), FileMode.Create))
+            using (FileStream fsInput = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (FileStream fsOutput = new FileStream(filePath.Replace(".enc", ""), FileMode.Create, FileAccess.Write))
             {
-                byte[] buffer = new byte[sizeOfFile];
+                byte[] buffer = new byte[4096];
                 int bytesRead;
                 long totalBytesRead = 0;
-                
-                while ((bytesRead = inputFile.Read(buffer, 0, buffer.Length)) > 0)
+
+                while ((bytesRead = fsInput.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    pauseEvent.WaitOne(); // Ожидание для паузы
+                    pauseEvent.WaitOne();
+
+                    byte[] decrypted = encryptor.Decrypt(buffer.Take(bytesRead).ToArray());
+                    fsOutput.Write(decrypted, 0, decrypted.Length);
+
+                    totalBytesRead += bytesRead;
+                    int progressPercentage = (int)((double)totalBytesRead / fileSize * 100);
+                    backgroundWorker.ReportProgress(progressPercentage);
 
                     if (backgroundWorker.CancellationPending)
                     {
                         throw new OperationCanceledException();
                     }
-
-                    byte[] decryptedData = encryptor.Decrypt(buffer.Take(bytesRead).ToArray());
-                    outputFile.Write(decryptedData, 0, decryptedData.Length);
-
-                    totalBytesRead += bytesRead;
-                    int progress = (int)((double)totalBytesRead / fileSize * 100);
-                    backgroundWorker.ReportProgress(progress);
                 }
             }
         }
