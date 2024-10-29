@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using ClassLib;
 using System.Diagnostics;
 
+
 namespace Lab4
 {
     public partial class Form1 : Form
@@ -65,11 +66,6 @@ namespace Lab4
 
             backgroundWorker.RunWorkerAsync();
             
-        }
-        private void Timer_Tick(object sender, EventArgs e) // Обработчик события Tick
-        {
-            secondsElapsed++;
-            timerLabel.Text = $"Seconds have passed: {secondsElapsed}"; // Обновление Label
         }
         private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -154,7 +150,7 @@ namespace Lab4
                 isPaused = true;
             }
         }
-
+          
         private void DecryptButton_Click(object sender, EventArgs e)
         {
             progressBar1.Show();
