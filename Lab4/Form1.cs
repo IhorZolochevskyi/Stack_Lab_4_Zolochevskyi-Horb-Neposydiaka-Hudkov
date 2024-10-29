@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using ClassLib;
 using System.Diagnostics;
 
+
 namespace Lab4
 {
     public partial class Form1 : Form

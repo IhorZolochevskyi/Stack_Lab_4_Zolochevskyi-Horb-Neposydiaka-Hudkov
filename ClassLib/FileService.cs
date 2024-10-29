@@ -26,7 +26,6 @@ namespace ClassLib
             using (FileStream fsInput = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             using (FileStream fsOutput = new FileStream(filePath + ".enc", FileMode.Create, FileAccess.Write))
             {
-                //409600000
                 byte[] buffer = new byte[4096];
                 int bytesRead;
                 long totalBytesRead = 0;
@@ -79,3 +78,4 @@ namespace ClassLib
         }
     }
 }
+
