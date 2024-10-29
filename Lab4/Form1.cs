@@ -24,10 +24,24 @@ namespace Lab4
         {
             InitializeComponent();
             InitializeBackgroundWorker();
+
+            // Приховуємо компоненти при запуску
             progressBar1.Hide();
             cancelButton.Hide();
             pauseButton.Hide();
             timerLabel.Text = "";
+
+            // Змінюємо текст кнопок
+            EncryptButton.Text = "Зашифрувати файл";
+            DecryptButton.Text = "Розшифрувати файл";
+            fileSelectButton.Text = "Вибрати файл";
+            cancelButton.Text = "Скасувати операцію";
+            pauseButton.Text = "Пауза";
+
+            // Налаштовуємо таймер
+            timer = new System.Windows.Forms.Timer();
+            timer.Interval = 1000;
+            timer.Tick += Timer_Tick;
         }
 
         private void InitializeBackgroundWorker()
@@ -192,3 +206,4 @@ namespace Lab4
         }
     }
 }
+
